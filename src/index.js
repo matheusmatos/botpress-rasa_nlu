@@ -47,10 +47,6 @@ module.exports = {
 
   init: async function(bp, configurator) {
 
-    config = await configurator.loadAll()
-
-    setRasaClient()
-
     bp.middlewares.register({
       name: 'rasa_nlu.incoming',
       module: 'botpress-rasa_nlu',
@@ -59,6 +55,9 @@ module.exports = {
       order: 10,
       description: 'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.'
     })
+
+    config = await configurator.loadAll()
+    setRasaClient()
   },
 
   ready: async function(bp, configurator) {
