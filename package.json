@@ -1,6 +1,6 @@
 {
   "name": "botpress-rasa_nlu",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A module to work with Rasa NLU",
   "main": "bin/node.bundle.js",
   "botpress": {
