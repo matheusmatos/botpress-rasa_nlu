@@ -40,17 +40,19 @@ export default class RasaModule extends React.Component {
     this.state = {
       loading: true,
       message: null,
-      initialStateHash: null
+      initialStateHash: null,
+      rasaAddress: '',
+      rasaProject: 'default',
     }
 
     this.renderAddress = this.renderAddress.bind(this)
-
-    this.handleAddressChange = this.handleAddressChange.bind(this)
+    this.renderProject = this.renderProject.bind(this)
+    this.onChange = this.onChange.bind(this)
     this.handleSaveChanges = this.handleSaveChanges.bind(this)
   }
 
   getStateHash() {
-    return this.state.address
+    return this.state.rasaAddress + '|' + this.state.rasaProject
   }
 
   getAxios() {
@@ -73,17 +75,21 @@ export default class RasaModule extends React.Component {
     })
   }
 
-  handleAddressChange(event) {
-    this.setState({
-      address: event.target.value
-    })
+  onChange(event) {
+    if( event.target.name in this.state ){
+      this.setState({
+        [event.target.name]: event.target.value
+      })
+    }
+    else console.warn("You are trying to set an invalid state property:", event.target.name);
   }
 
   handleSaveChanges() {
     this.setState({ loading:true })
 
     return this.getAxios().post('/api/botpress-rasa_nlu/config', {
-      address: this.state.address,
+      rasaAddress: this.state.rasaAddress,
+      rasaProject: this.state.rasaProject,
     })
     .then(() => {
       this.setState({
@@ -111,8 +117,24 @@ export default class RasaModule extends React.Component {
             Rasa Address
           </Col>
           <Col sm={8}>
-            <FormControl type="text" value={this.state.address} onChange={this.handleAddressChange}/>
+            <FormControl type="text" name="rasaAddress" value={this.state.rasaAddress} onChange={this.onChange}/>
             <HelpBlock>Example: <code>http://localhost:5000</code> or <code>http://myrasa.mysite.com</code></HelpBlock>
+          </Col>
+        </FormGroup>
+      </Row>
+    )
+  }
+
+  renderProject() {
+    return (
+      <Row>
+        <FormGroup>
+          <Col componentClass={ControlLabel} sm={3}>
+            Project Name
+          </Col>
+          <Col sm={8}>
+            <FormControl type="text" name="rasaProject" value={this.state.rasaProject} onChange={this.onChange}/>
+            <HelpBlock>Your Rasa Project Name. Example:<br/><code>{ this.state.rasaAddress }/parse?q=hello&project={this.state.rasaProject}</code></HelpBlock>
           </Col>
         </FormGroup>
       </Row>
@@ -157,6 +179,7 @@ export default class RasaModule extends React.Component {
               {this.renderSaveButton()}
               <div className={style.settings}>
                 {this.renderAddress()}
+                {this.renderProject()}
               </div>
             </Panel>
             <Panel header="Rasa NLU">

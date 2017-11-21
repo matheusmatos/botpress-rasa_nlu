@@ -5,11 +5,12 @@ let service = null
 
 const setRasaClient = () => {
   const client = axios.create({
-    baseURL: config.address
+    baseURL: config.rasaAddress,
   })
 
   service = (message) => {
-    return client.get('/parse?q=' + message)
+    let serviceUri = '/parse?q=' + message + '&project=' + config.rasaProject;
+    return client.get(serviceUri);
   }
 }
 
@@ -42,7 +43,8 @@ const incomingMiddleware = (event, next) => {
 module.exports = {
 
   config: {
-    address: { type: 'string', default: 'http://localhost:5000', env: 'RASA_ADDRESS' },
+    rasaAddress: { type: 'string', default: 'http://localhost:5000', env: 'RASA_ADDRESS' },
+    rasaProject: { type: 'string', default: 'default', env: 'RASA_PROJECT' },
   },
 
   init: async function(bp, configurator) {
@@ -69,8 +71,8 @@ module.exports = {
     })
 
     router.post('/config', async (req, res) => {
-      const { address } = req.body
-      await configurator.saveAll({ address })
+      const { rasaAddress, rasaProject } = req.body
+      await configurator.saveAll({ rasaAddress, rasaProject })
       config = await configurator.loadAll()
       setRasaClient()
       res.sendStatus(200)
